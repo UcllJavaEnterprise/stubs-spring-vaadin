@@ -182,6 +182,9 @@
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <requireHomeNodeExec>true</requireHomeNodeExec>
+                </configuration>
             </plugin>
         </plugins>
     </build>
