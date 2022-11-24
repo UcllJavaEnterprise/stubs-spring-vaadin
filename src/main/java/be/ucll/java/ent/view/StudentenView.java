@@ -36,8 +36,9 @@ import java.util.List;
 @Route("studenten")
 public class StudentenView extends VerticalLayout {
 
-    // Spring Controllers
+    // Spring Controlers
     private final StudentController studentenMngr;
+    private MessageSource msg;
 
     private SplitLayout splitLayout;
     private VerticalLayout lpvLayout; // Left Panel Vertical Layout
@@ -64,6 +65,7 @@ public class StudentenView extends VerticalLayout {
         // Load Spring Beans via a utility class
         // We can't use @Autowired because Vaadin Views are preferably NOT declared as SpringComponent
         studentenMngr = BeanUtil.getBean(StudentController.class);
+        msg = BeanUtil.getBean(MessageSource.class);
 
         this.setSizeFull();
         this.setPadding(false);
@@ -80,7 +82,7 @@ public class StudentenView extends VerticalLayout {
         lpvLayout.setWidthFull();
 
         lphLayout = new HorizontalLayout();
-        lblNaam = new Label("Naam");
+        lblNaam = new Label(msg.getMessage("sview.lblName", null, getLocale()));
         txtNaam = new TextField();
         txtNaam.setValueChangeMode(ValueChangeMode.EAGER);
         txtNaam.addValueChangeListener(e -> handleClickSearch(null));
@@ -91,18 +93,25 @@ public class StudentenView extends VerticalLayout {
         grid.setItems(new ArrayList<StudentDTO>(0));
         //grid.addColumn(StudentDTO::getVoornaam).setHeader("Voornaam").setSortable(true);
         grid.addColumn(student -> student.getVoornaam()).setHeader("Voornaam").setSortable(true);
-        grid.addColumn(StudentDTO::getNaam).setHeader("Naam").setSortable(true);
+        grid.addColumn(StudentDTO::getNaam).setHeader(msg.getMessage("sview.lblName", null, getLocale())).setSortable(true);
         grid.addColumn(StudentDTO::getGeboortedatumstr).setHeader("Geboortedatum");
-        /*
         grid.addColumn(new ComponentRenderer<>(student -> {
             Button b = new Button(new Icon(VaadinIcon.ELLIPSIS_DOTS_H));
             b.getElement().setProperty("title", "Inschrijvingen");
             b.addClickListener(e ->{
-                //TODO
+                InschrijvingenDialog d = new InschrijvingenDialog(student);
+                UI.getCurrent().getPage().retrieveExtendedClientDetails(receiver -> {
+                    int browserWindowsWidth = receiver.getWindowInnerWidth();
+                    int browserWindowsHeight = receiver.getWindowInnerHeight();
+                    // Maak de dialog hoogte/breedte gelijk aan de helft van het scherm
+                    d.setWidth((browserWindowsWidth / 2) + "px");
+                    d.setHeight((browserWindowsHeight / 2) + "px");
+                });
+
+                d.open();
             });
             return b;
         }));
-         */
         grid.setHeightFull();
 
         //when a row is selected or deselected, populate form
@@ -216,17 +225,25 @@ public class StudentenView extends VerticalLayout {
     }
 
     private void handleClickDelete(ClickEvent event) {
-        try {
-            studentenMngr.deleteStudent(Integer.parseInt(frm.lblID.getText()));
-            Notification.show("Student verwijderd", 3000, Notification.Position.TOP_CENTER);
-        } catch (IllegalArgumentException e) {
-            Notification.show("Het is NIET mogelijk de student te verwijderen wegens geregistreerde inschrijvingen.", 5000, Notification.Position.MIDDLE).addThemeVariants(NotificationVariant.LUMO_ERROR);
-        }
-        frm.resetForm();
-        handleClickSearch(null);
-        btnCreate.setVisible(true);
-        btnUpdate.setVisible(false);
-        btnDelete.setVisible(false);
+        OKCancelDialog d = new OKCancelDialog("Weet u zeker dat u deze student wil verwijderen?");
+        d.setCloseOnEsc(false);
+        d.setCloseOnOutsideClick(false);
+        d.addOpenedChangeListener(ee-> {
+            if (!ee.isOpened() && d.wasOKClicked()) {
+                try {
+                    studentenMngr.deleteStudent(Integer.parseInt(frm.lblID.getText()));
+                    Notification.show("Student verwijderd", 3000, Notification.Position.TOP_CENTER);
+                } catch (IllegalArgumentException e) {
+                    Notification.show("Het is NIET mogelijk de student te verwijderen wegens geregistreerde inschrijvingen.", 5000, Notification.Position.MIDDLE).addThemeVariants(NotificationVariant.LUMO_ERROR);
+                }
+                frm.resetForm();
+                handleClickSearch(null);
+                btnCreate.setVisible(true);
+                btnUpdate.setVisible(false);
+                btnDelete.setVisible(false);
+            }
+        });
+        d.open();
     }
 
     private void populateForm(StudentDTO s) {

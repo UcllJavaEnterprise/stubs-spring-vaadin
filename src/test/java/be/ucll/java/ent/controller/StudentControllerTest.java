@@ -1,7 +1,6 @@
 package be.ucll.java.ent.controller;
 
 import be.ucll.java.ent.domain.StudentDTO;
-import com.helger.commons.state.IEnabledIndicator;
 import org.junit.*;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
@@ -280,7 +279,7 @@ public class StudentControllerTest {
     @Test
     public void createStudentNull() {
         expectedEx.expect(IllegalArgumentException.class);
-        expectedEx.expectMessage("Data vereist voor het aanmaken van een student ontbreekt");
+        expectedEx.expectMessage("data vereist voor het aanmaken van een student ontbreekt");
 
         StudentDTO student = null;
         ctrl.createStudent(student);

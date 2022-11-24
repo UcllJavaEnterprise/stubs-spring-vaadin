@@ -21,6 +21,7 @@ import javax.annotation.PostConstruct;
 @Route("")
 @PageTitle("StuBS")
 @Theme(value = Lumo.class, variant = Lumo.LIGHT)
+@CssImport("styles/main-view.css")
 class MainView extends AppLayout  {
 
     // Content views
@@ -32,22 +33,33 @@ class MainView extends AppLayout  {
     private static final String TABNAME1 = "Studenten";
     private Tab tab2;
     private static final String TABNAME2 = "Leermodules";
+    private Tab tab3;
+    private Tab tab4;
     private Tabs tabs;
 
     public MainView() {
         // Header / Menu bar on the top of the page
         H3 header = new H3("Stubs - Het STUdenten Beheer Systeem");
+        header.setId("header-layout");
+
+        Image img = new Image("images/ucll.jpg", "UCLL logo");
+        img.setHeight("30px");
+        img.setId("aligneer-rechts");
 
         addToNavbar(new DrawerToggle(),
                 new Html("<span>&nbsp;&nbsp;</span>"),
                 header,
-                new Html("<span>&nbsp;&nbsp;</span>"));
+                new Html("<span>&nbsp;&nbsp;</span>"),
+                new Icon(VaadinIcon.ACADEMY_CAP), img);
 
         // Tabs on the left side drawer
         tab1 = new Tab(TABNAME1);
         tab2 = new Tab(TABNAME2);
+        tab3 = new Tab("Help");
+        tab3.setEnabled(false);
+        tab4 = new Tab(new Icon(VaadinIcon.COG));
 
-        tabs = new Tabs(tab1, tab2);
+        tabs = new Tabs(tab1, tab2, tab3, tab4);
         tabs.setOrientation(Tabs.Orientation.VERTICAL);
         tabs.addSelectedChangeListener(event -> {
             handleTabClicked(event);

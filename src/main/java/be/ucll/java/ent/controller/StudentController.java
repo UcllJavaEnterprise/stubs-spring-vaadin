@@ -37,7 +37,8 @@ public class StudentController {
         // Algemene input controle
         if (student == null) {
             //throw new IllegalArgumentException("Alle data vereist voor het aanmaken van een student ontbreekt");
-            throw new IllegalArgumentException("Data vereist voor het aanmaken van een student ontbreekt");
+            throw new IllegalArgumentException(
+                    msg.getMessage("ex.studcontroller.1", null, new Locale("nl")));
         }
 
         // Controle op verplichte velden
