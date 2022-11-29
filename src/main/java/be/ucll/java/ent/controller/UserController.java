@@ -28,6 +28,7 @@ public class UserController {
         for (UserDTO user : users) {
             if (user.getUserid().equalsIgnoreCase(unauthenticateduser.getUserid()) &&
                     user.getPassword().equals(unauthenticateduser.getPassword())) {
+                loggedInUser = user;
                 return user;
             }
         }
